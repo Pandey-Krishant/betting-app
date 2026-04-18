@@ -19,7 +19,7 @@ export default function AdminCoins() {
   const [showModal, setShowModal] = useState(false);
 
   const handleToggleUnlimited = () => {
-    if (!currentUser) return;
+    if (!currentUser || !currentUser.id) return;
     const newState = !currentUser.isUnlimited;
     setUnlimitedBalance(currentUser.id, newState);
     setShowModal(false);

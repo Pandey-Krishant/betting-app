@@ -36,7 +36,7 @@ export default function AdminContests() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {contests.map((contest) => {
+            {contests.map((contest: any) => {
               const match = matches.find(m => m.id === contest.matchId);
               return (
                 <TableRow key={contest.id} className="border-white/10 hover:bg-white/5">

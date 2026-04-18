@@ -7,6 +7,7 @@ interface StoreState {
   users: User[];
   matches: Match[];
   bets: Bet[];
+  contests: any[];
   transactions: any[];
   
   // Actions
@@ -68,6 +69,7 @@ export const useStore = create<StoreState>()(
       ],
       matches: initialMatches,
       bets: [],
+      contests: [],
       transactions: [],
 
       login: (username) => {

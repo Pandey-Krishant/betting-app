@@ -11,12 +11,14 @@ export default function AdminMatches() {
   const [scoreData, setScoreData] = useState({ runs: '0', wickets: '0', overs: '0.0' });
 
   const handleToggleInPlay = (matchId: string) => {
-    setEvents(events.map(e => e._id === matchId ? { ...e, oddsData: { ...e.oddsData, inPlay: !e.oddsData.inPlay } } : e));
+    const updated = events.map(e => e._id === matchId ? { ...e, oddsData: { ...e.oddsData, inPlay: !e.oddsData.inPlay } } : e);
+    (setEvents as any)({ "manual_update": updated });
     toast.success('InPlay updated');
   };
 
   const handleToggleSuspend = (matchId: string) => {
-    setEvents(events.map(e => e._id === matchId ? { ...e, oddsData: { ...e.oddsData, status: e.oddsData.status === 'OPEN' ? 'SUSPENDED' : 'OPEN' } } : e));
+    const updated = events.map(e => e._id === matchId ? { ...e, oddsData: { ...e.oddsData, status: e.oddsData.status === 'OPEN' ? 'SUSPENDED' : 'OPEN' } } : e);
+    (setEvents as any)({ "manual_update": updated });
     toast.success('Market suspended/opened');
   };
 

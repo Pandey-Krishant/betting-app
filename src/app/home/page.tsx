@@ -1,15 +1,17 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useEventsStore, Event, RunnerOdds } from '@/store/useEventsStore';
+import { useEventsStore } from '@/store/useEventsStore';
 import { useBetSlipStore } from '@/store/useBetStore';
 import { useLiveMatches } from '@/hooks/useApi';
+import { Event, RunnerOdds } from '@/types/betting';
 import Link from 'next/link';
 import { Pin } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { toast } from 'sonner';
 
 export default function Home() {
-  const { events, lastPrices } = useEventsStore();
+  const { events, lastPrices, setEvents } = useEventsStore();
   const setSelection = useBetSlipStore(state => state.setSelection);
   const [activeTab, setActiveTab] = useState('Cricket');
   const [mounted, setMounted] = useState(false);
@@ -35,6 +37,18 @@ export default function Home() {
   const formatSize = (num: number) => {
     if (num >= 1000) return `${(num / 1000).toFixed(1)}k`;
     return num.toString();
+  };
+
+  const handleToggleInPlay = (matchId: string) => {
+    const updated = events.map(e => e._id === matchId ? { ...e, oddsData: { ...e.oddsData, inPlay: !e.oddsData.inPlay } } : e);
+    (setEvents as any)(updated);
+    toast.success('InPlay updated');
+  };
+
+  const handleToggleSuspend = (matchId: string) => {
+    const updated = events.map(e => e._id === matchId ? { ...e, oddsData: { ...e.oddsData, status: e.oddsData.status === 'OPEN' ? 'SUSPENDED' : 'OPEN' } } : e);
+    (setEvents as any)(updated);
+    toast.success('Market suspended/opened');
   };
 
   const renderOddsCell = (event: Event, runner: RunnerOdds, type: 'back' | 'lay', index: number) => {

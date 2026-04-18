@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useEventsStore, Event, RunnerOdds } from '@/store/useEventsStore';
+import { useEventsStore } from '@/store/useEventsStore';
+import { Event, RunnerOdds } from '@/types/betting';
 import { useBetSlipStore } from '@/store/useBetStore';
 import { useLiveMatches } from '@/hooks/useApi';
 import Link from 'next/link';
