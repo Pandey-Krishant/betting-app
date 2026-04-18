@@ -40,7 +40,8 @@ export const useEventsStore = create<EventsState>((set, get) => ({
   lastPrices: {},
   setEvents: (eventMap) => {
     const sportMap: Record<string, string> = {
-      "4": "Cricket", "1": "Football", "2": "Tennis", "7": "Horse Racing", "4339": "Greyhounds"
+      "4": "Cricket", "1": "Football", "2": "Tennis", "7": "Horse Racing", "4339": "Greyhounds",
+      "7522": "Basketball", "1477": "Kabaddi", "3503": "Darts", "5": "Rugby", "23789": "Politics"
     };
 
     const allEvents = Object.entries(eventMap).flatMap(([id, events]) => {

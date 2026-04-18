@@ -27,7 +27,10 @@ export default function InPlayPage() {
     { name: 'Cricket', icon: '🏏' },
     { name: 'Football', icon: '⚽' },
     { name: 'Tennis', icon: '🎾' },
-    { name: 'Horse Racing', icon: '🏇' }
+    { name: 'Horse Racing', icon: '🏇' },
+    { name: 'Greyhounds', icon: '🐕' },
+    { name: 'Basketball', icon: '🏀' },
+    { name: 'Kabaddi', icon: '🤼' }
   ];
 
   const inPlayMatches = events.filter(e => {
@@ -51,7 +54,10 @@ export default function InPlayPage() {
 
   const renderOddsCell = (event: Event, runner: RunnerOdds, type: 'back' | 'lay', index: number) => {
     const priceObj = type === 'back' ? runner.price.back[index] : runner.price.lay[index];
-    const emptyBg = type === 'back' ? 'bg-back-3' : 'bg-lay-3';
+    const emptyBg = type === 'back' 
+      ? (index === 0 ? 'bg-back-1/30' : 'bg-back-3') 
+      : (index === 0 ? 'bg-lay-1/30' : 'bg-lay-3');
+      
     if (!priceObj || !priceObj.price) return <div className={`w-12 h-9 sm:w-14 sm:h-10 ${emptyBg} border-x border-white`} />;
 
     const rid = `${event._id}_${runner.selectionId}`;

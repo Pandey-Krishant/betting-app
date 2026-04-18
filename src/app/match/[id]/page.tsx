@@ -46,7 +46,9 @@ export default function MatchDetail() {
 
   const renderOddsCell = (runner: RunnerOdds, type: 'back' | 'lay', index: number) => {
     const priceObj = type === 'back' ? runner.price.back[index] : runner.price.lay[index];
-    const emptyBg = type === 'back' ? 'bg-back-3' : 'bg-lay-3';
+    const emptyBg = type === 'back' 
+      ? (index === 0 ? 'bg-back-1/30' : 'bg-back-3') 
+      : (index === 0 ? 'bg-lay-1/30' : 'bg-lay-3');
     if (!priceObj || !priceObj.price) return <div className={`w-[50px] sm:w-[58px] h-10 ${emptyBg} border-x border-white`} />;
 
     const rid = `${event._id}_${runner.selectionId}`;
