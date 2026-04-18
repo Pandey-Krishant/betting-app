@@ -52,6 +52,7 @@ export const useAuthStore = create<AuthState>()(
         if (needsSync) set({ users: currentUsers });
 
         const foundUser = currentUsers.find(u => u.username.toLowerCase() === lowerUser && u.password === password);
+        console.log('DEBUG: Login attempt. Total users:', currentUsers.length);
         
         if (foundUser) {
           if (foundUser.status === 'banned') return { success: false, msg: 'Account suspended' };
@@ -77,6 +78,7 @@ export const useAuthStore = create<AuthState>()(
         };
         
         set((state) => ({ users: [...state.users, newUser] }));
+        console.log('DEBUG: New user registered. Total users:', get().users.length + 1);
         return { success: true, msg: 'Registration successful' };
       },
       logout: () => set({ user: null }),

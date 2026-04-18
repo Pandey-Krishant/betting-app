@@ -4,9 +4,11 @@ import { useAuthStore } from '@/store/useAuthStore';
 import { useState } from 'react';
 import { Wallet, X, Gift, InfinityIcon, Search } from 'lucide-react';
 import { toast } from 'sonner';
+import { useRegisteredUsers } from '@/hooks/useRegisteredUsers';
 
 export default function AdminUsers() {
   const { users, updateUserBalance, toggleUserBan, setUnlimitedBalance, giftCoins } = useAuthStore();
+  const { registeredUsers, getTotalRegistered, getNew24h } = useRegisteredUsers();
   const [editingUser, setEditingUser] = useState<string | null>(null);
   const [amount, setAmount] = useState('');
   const [query, setQuery] = useState('');
@@ -22,9 +24,17 @@ export default function AdminUsers() {
     setAmount('');
   };
 
-  const filteredUsers = users.filter(u =>
+const filteredUsers = [...users.filter(u => u.role === 'admin'), ...registeredUsers].filter(u =>
     u.username.toLowerCase().includes(query.toLowerCase())
   );
+
+  const isNewUser = (createdAt?: string) => {
+    if (!createdAt) return false;
+    const created = new Date(createdAt);
+    const now = new Date();
+    const hours = (now.getTime() - created.getTime()) / (1000 * 60 * 60);
+    return hours < 24;
+  };
 
   const handleGift = () => {
     if (!giftUser) return toast.error('Select user');
@@ -51,6 +61,10 @@ export default function AdminUsers() {
          </button>
       </div>
 
+      <div className="py-3 px-4 bg-orange-50 border-y border-orange-200 text-sm">
+        <span className="font-black uppercase tracking-widest text-gray-800">Stats: Total Users: <span className="text-orange-500 font-black">{users.length + registeredUsers.length}</span> | Real Registered: <span className="text-match-inplay font-black">{getTotalRegistered()}</span> | New 24h: <span className="text-green-600 font-black">{getNew24h()}</span></span>
+      </div>
+
       <div className="bg-white border border-gray-100 rounded-sm p-3 flex items-center gap-3">
          <div className="relative flex-1">
             <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -61,6 +75,10 @@ export default function AdminUsers() {
               className="w-full bg-gray-50 border border-gray-200 outline-none focus:border-match-name px-9 py-2 rounded-sm text-sm font-bold transition-all"
             />
          </div>
+      </div>
+
+      <div className="text-right py-3 px-4 bg-gray-50 border-t border-gray-100">
+        <span className="font-black text-gray-600 text-sm uppercase tracking-widest">Total Members: <span className="text-orange-500 font-black text-lg">{users.length}</span></span>
       </div>
 
       <div className="overflow-x-auto bg-white rounded-sm border border-gray-100">
@@ -85,7 +103,8 @@ export default function AdminUsers() {
                 <td className="px-5 py-4">
                   <div className="flex items-center gap-2">
                     <span className="text-black">{u.username}</span>
-                    {u.isUnlimited && <span className="text-[16px] animate-bounce">👑</span>}
+{u.isUnlimited && <span className="text-[16px] animate-bounce">👑</span>}
+                    {isNewUser(u.createdAt) && <span className="ml-2 px-1.5 py-0.5 bg-orange-400 text-black text-[9px] font-black uppercase rounded-sm tracking-widest shadow-sm animate-pulse">NEW</span>}
                   </div>
                 </td>
                 <td className="px-5 py-4 text-gray-500 text-[12px]">{u.mobile || '-'}</td>

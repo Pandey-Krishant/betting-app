@@ -1,7 +1,19 @@
-# Task Progress: Set Default Zero Coins for Users (Only Admin Gifts)
+# Task Progress: Fix Admin Users List + New User Visibility
 
-## Pending Steps (Approved Plan):
-- [x] Step 1: Edit src/store/useAuthStore.ts - Set hardcoded demo/rahul users balance to 0. ✅
-- [x] Step 2: Test changes (login admin/users, check balances, gift coins). ✅ Run `npm run dev`, login admin → /admin/users (users show ₹0), gift → user /wallet shows source.
-- [x] Step 3: Committed "Set default zero coins for users (demo/rahul); admins keep 1M unlimited + gift feature intact". ✅
-- [x] Step 4: Pushed branch blackboxai/zero-coins-default → https://github.com/Pandey-Krishant/betting-app/pull/new/blackboxai/zero-coins-default. Merge PR to main. ✅
+## Current Issue: Only 4 users show in /admin/users (expect registered too)
+
+**Status:** ✅ Plan approved, implementing...
+
+## TODO Steps:
+- [x] Step 1: Update TODO.md with progress ✅
+- [x] Step 2: Edit src/app/admin/users/page.tsx - Add **total users count** header + **NEW badge** (createdAt <24h) for recent registrations. ✅
+- [x] Step 3: Edit src/store/useAuthStore.ts - Add debug console.logs in register/login ✅
+- [ ] Step 4: Test: `npm run dev` → register new → login admin → check /admin/users count >4, NEW badge, console logs.
+- [ ] Step 5: Remove logs if ok, commit/push.
+
+**Test Credentials:**
+- Admin: admin/Admin@123 or gamma/11223344
+- Demo: demo/Demo@123 (₹0)
+
+**Expected:** After register "testuser", admin sees 5 users, newest with orange NEW badge.
+

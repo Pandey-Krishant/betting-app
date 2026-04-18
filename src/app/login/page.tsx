@@ -99,11 +99,6 @@ export default function LoginPage() {
         </form>
       </div>
 
-      <style jsx global>{`
-        .header-gradient {
-          background: var(--header-bg);
-        }
-      `}</style>
     </div>
   );
 }
