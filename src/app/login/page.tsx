@@ -72,14 +72,14 @@ export default function LoginPage() {
            <div className="flex flex-col gap-3 py-2">
               <button 
                 type="submit"
-                className="header-gradient w-full h-12 text-black font-black uppercase tracking-widest text-[14px] shadow-lg active:scale-95 transition-all rounded-sm flex items-center justify-center"
+                className="sports-gradient w-full h-12 text-black font-black uppercase tracking-widest text-[14px] shadow-lg active:scale-95 transition-all rounded-sm flex items-center justify-center"
               >
                 Login
               </button>
               <button 
                 type="button"
                 onClick={handleDemo}
-                className="header-gradient w-full h-12 text-black font-black uppercase tracking-widest text-[14px] shadow-lg active:scale-95 transition-all rounded-sm flex items-center justify-center opacity-90"
+                className="sports-gradient w-full h-12 text-black font-black uppercase tracking-widest text-[14px] shadow-lg active:scale-95 transition-all rounded-sm flex items-center justify-center opacity-90"
               >
                 Demo Login
               </button>

@@ -6,8 +6,8 @@
 
 :root {
   --body-bg: #ededed;
-  --header-bg: #000000;
-  --header-text: #ffffff;
+  --header-bg: linear-gradient(-180deg, #fd8f3b 0%, #fd3523 100%);
+  --header-text: #000000;
   
   --sports-gradient: linear-gradient(-180deg, #fd8f3b 0%, #fd3523 100%);
   --exchange-gradient: linear-gradient(-180deg, #2e4b5e 0%, #243a48 82%);
