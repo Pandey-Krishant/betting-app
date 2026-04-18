@@ -19,13 +19,27 @@ export default function Home() {
   // Trigger Live Data Polling
   useLiveMatches();
 
+  const baseTabs = ['Cricket', 'Football', 'Tennis', 'Horse Racing', 'Greyhounds', 'Basketball', 'Kabaddi', 'Politics', 'Casino'];
+
   useEffect(() => {
     setMounted(true);
   }, []);
 
+  useEffect(() => {
+    const availableSports = new Set(events.map(e => e.sportName));
+    if (availableSports.size === 0) return;
+
+    if (!availableSports.has(activeTab)) {
+      const firstAvailable = baseTabs.find(t => availableSports.has(t)) ?? baseTabs[0];
+      setActiveTab(firstAvailable);
+    }
+  }, [events, activeTab]);
+
   if (!mounted) return null;
 
-  const tabs = ['Cricket', 'Football', 'Tennis', 'Horse Racing', 'Greyhounds', 'Basketball', 'Kabaddi', 'Politics', 'Casino'];
+  const availableSports = new Set(events.map(e => e.sportName));
+  const tabs = baseTabs.filter(t => availableSports.has(t));
+  const safeTabs = tabs.length > 0 ? tabs : baseTabs;
   const filteredEvents = events.filter(e => e.sportName === activeTab);
 
   const formatMatched = (num: number) => {
@@ -39,25 +53,48 @@ export default function Home() {
     return num.toString();
   };
 
+  const renderEmptyOddsCell = (type: 'back' | 'lay', index: number) => {
+    const emptyBg = type === 'back'
+      ? (index === 0 ? 'bg-back-1/30' : 'bg-back-3')
+      : (index === 0 ? 'bg-lay-1/30' : 'bg-lay-3');
+
+    return (
+      <div className={`w-14 h-10 ${emptyBg} border border-gray-200 flex items-center justify-center`}>
+        <span className="text-[10px] font-black text-black/20 select-none">--</span>
+      </div>
+    );
+  };
+
   const handleToggleInPlay = (matchId: string) => {
-    const updated = events.map(e => e._id === matchId ? { ...e, oddsData: { ...e.oddsData, inPlay: !e.oddsData.inPlay } } : e);
+    const updated = events.map(e =>
+      e._id === matchId
+        ? { ...e, oddsData: { ...(e.oddsData ?? ({} as any)), inPlay: !e.oddsData?.inPlay } }
+        : e
+    );
     (setEvents as any)(updated);
     toast.success('InPlay updated');
   };
 
   const handleToggleSuspend = (matchId: string) => {
-    const updated = events.map(e => e._id === matchId ? { ...e, oddsData: { ...e.oddsData, status: e.oddsData.status === 'OPEN' ? 'SUSPENDED' : 'OPEN' } } : e);
+    const updated = events.map(e =>
+      e._id === matchId
+        ? {
+            ...e,
+            oddsData: {
+              ...(e.oddsData ?? ({} as any)),
+              status: e.oddsData?.status === 'OPEN' ? 'SUSPENDED' : 'OPEN'
+            }
+          }
+        : e
+    );
     (setEvents as any)(updated);
     toast.success('Market suspended/opened');
   };
 
   const renderOddsCell = (event: Event, runner: RunnerOdds, type: 'back' | 'lay', index: number) => {
     const priceObj = type === 'back' ? runner.price.back[index] : runner.price.lay[index];
-    const emptyBg = type === 'back' 
-      ? (index === 0 ? 'bg-back-1/30' : 'bg-back-3') 
-      : (index === 0 ? 'bg-lay-1/30' : 'bg-lay-3');
-    
-    if (!priceObj || !priceObj.price) return <div className={`w-14 h-10 ${emptyBg} border-x border-white`} />;
+
+    if (!priceObj || !priceObj.price) return renderEmptyOddsCell(type, index);
 
     const rid = `${event._id}_${runner.selectionId}`;
     const lastPrice = lastPrices[rid];
@@ -101,7 +138,7 @@ export default function Home() {
     <div className="flex flex-col min-h-screen pt-[72px] pb-[55px] sm:pb-0 bg-[#ededed]">
       {/* Sports Nav Bar */}
       <div className="sports-gradient h-[40px] w-full flex items-center fixed top-[72px] z-[998] px-2 overflow-x-auto no-scrollbar shadow-md">
-        {tabs.map((tab) => (
+        {safeTabs.map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
@@ -130,7 +167,7 @@ export default function Home() {
                  { name: 'Greyhounds', icon: '🐕' },
                  { name: 'Basketball', icon: '🏀' },
                  { name: 'Kabaddi', icon: '🤼' }
-               ].map((sport) => {
+               ].filter((sport) => availableSports.has(sport.name)).map((sport) => {
                  const sportCount = events.filter(e => e.sportName === sport.name).length;
                  return (
                    <div 
@@ -157,9 +194,9 @@ export default function Home() {
           <div className="bg-white shadow-sm overflow-hidden border border-gray-200 rounded-sm">
              <div className="bg-gray-50 px-3 py-2 flex justify-between items-center border-b border-gray-100">
                 <span className="text-black font-black text-[12px] uppercase tracking-widest italic">{activeTab} Games</span>
-                <div className="flex gap-1 pr-1">
-                   <div className="w-14 text-center text-[10px] font-black text-gray-400 uppercase tracking-widest italic">Back</div>
-                   <div className="w-14 text-center text-[10px] font-black text-gray-400 uppercase tracking-widest italic">Lay</div>
+                <div className="hidden sm:flex pr-1 w-[230px] justify-between">
+                   <div className="text-center text-[10px] font-black text-gray-400 uppercase tracking-widest italic px-2">Back</div>
+                   <div className="text-center text-[10px] font-black text-gray-400 uppercase tracking-widest italic px-2">Lay</div>
                 </div>
              </div>
 
@@ -170,7 +207,7 @@ export default function Home() {
                          <div className="flex items-center gap-2 mb-1">
                             <Pin className="w-3.5 h-3.5 text-gray-200 group-hover:text-match-name transition-colors" />
                             <span className="text-match-name font-black text-[14px] uppercase tracking-tight">{event.eventName}</span>
-                            {(event.oddsData.inPlay || (event.sportName === 'Horse Racing' && event.oddsData.totalMatched > 0)) && (
+                            {((event.oddsData?.inPlay ?? false) || (event.sportName === 'Horse Racing' && (event.oddsData?.totalMatched ?? 0) > 0)) && (
                                <span className="text-[10px] font-black italic inplay-text uppercase flex items-center gap-1.5 px-2 py-0.5 bg-green-50 rounded-[2px] border border-green-100 ml-2">
                                   <span className="w-1.5 h-1.5 rounded-full bg-current animate-pulse" />
                                   Live Now
@@ -187,20 +224,36 @@ export default function Home() {
                                {event.isSportsbook && <span className="bg-[#f26d1c] text-white text-[9px] px-1 rounded-sm font-black flex items-center justify-center h-4 shadow-sm">S</span>}
                             </div>
                             <span className="text-[10px] text-gray-400 font-black ml-auto sm:ml-4 tracking-tighter italic">
-                              MATCHED: {formatMatched(event.oddsData.totalMatched)}
+                              MATCHED: {formatMatched(event.oddsData?.totalMatched ?? 0)}
                             </span>
                          </div>
                       </Link>
 
                       <div className="flex px-3 pb-3 sm:pb-0 sm:pr-4 gap-[2px]">
-                         <div className="flex gap-[1px]">
-                            {renderOddsCell(event, event.oddsData.runners[0], 'back', 0)}
-                            {renderOddsCell(event, event.oddsData.runners[0], 'lay', 0)}
-                         </div>
-                         <div className="flex gap-[1px] ml-1">
-                            {renderOddsCell(event, event.oddsData.runners[1] || event.oddsData.runners[0], 'back', 0)}
-                            {renderOddsCell(event, event.oddsData.runners[1] || event.oddsData.runners[0], 'lay', 0)}
-                         </div>
+                         {(() => {
+                           const runnerA = event.oddsData?.runners?.[0];
+                           const runnerB = event.oddsData?.runners?.[1] ?? runnerA;
+
+                           if (!runnerA) {
+                             return (
+                               <>
+                                 {renderEmptyOddsCell('back', 0)}
+                                 {renderEmptyOddsCell('lay', 0)}
+                                 {renderEmptyOddsCell('back', 0)}
+                                 {renderEmptyOddsCell('lay', 0)}
+                               </>
+                             );
+                           }
+
+                           return (
+                             <>
+                               {renderOddsCell(event, runnerA, 'back', 0)}
+                               {renderOddsCell(event, runnerA, 'lay', 0)}
+                               {renderOddsCell(event, runnerB!, 'back', 0)}
+                               {renderOddsCell(event, runnerB!, 'lay', 0)}
+                             </>
+                           );
+                         })()}
                       </div>
                    </div>
                 ))}

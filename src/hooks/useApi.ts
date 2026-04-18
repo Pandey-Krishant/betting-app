@@ -15,14 +15,20 @@ export function useLiveMatches() {
 
   const fetchMatches = useCallback(async () => {
     try {
-      const response = await sportsService.getLiveMatches();
-      const eventData = response.data || {};
+      const payload = await sportsService.getLiveMatches();
+      // `sportsService.getLiveMatches()` returns decoded JSON (not an axios response),
+      // but the upstream payload may still be wrapped (e.g. `{ data: ... }`).
+      const eventData = (payload as any)?.data ?? payload ?? {};
       
       // Update global store
       setStoreEvents(eventData);
       
       // Flatten for local local hook usage if needed
-      const flattened = Object.values(eventData).flat();
+      const flattened = Array.isArray(eventData)
+        ? eventData
+        : (eventData && typeof eventData === 'object')
+          ? (Object.values(eventData as Record<string, any>).flat() as any[])
+          : [];
       setMatches(flattened);
       setError(null);
     } catch (err: any) {

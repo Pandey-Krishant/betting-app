@@ -36,9 +36,9 @@ export default function InPlayPage() {
   const inPlayMatches = events.filter(e => {
     if (activeSport === 'Horse Racing') {
       // Show Horse Racing if it's strictly inPlay OR has active matched volume
-      return e.sportName === 'Horse Racing' && (e.oddsData.inPlay || e.oddsData.totalMatched > 0);
+      return e.sportName === 'Horse Racing' && ((e.oddsData?.inPlay ?? false) || (e.oddsData?.totalMatched ?? 0) > 0);
     }
-    return e.oddsData.inPlay && e.sportName === activeSport;
+    return (e.oddsData?.inPlay ?? false) && e.sportName === activeSport;
   });
 
   const formatMatched = (num: number) => {
@@ -52,13 +52,22 @@ export default function InPlayPage() {
     return num.toString();
   };
 
+  const renderEmptyOddsCell = (type: 'back' | 'lay', index: number) => {
+    const emptyBg = type === 'back'
+      ? (index === 0 ? 'bg-back-1/30' : 'bg-back-3')
+      : (index === 0 ? 'bg-lay-1/30' : 'bg-lay-3');
+
+    return (
+      <div className={`w-12 h-9 sm:w-14 sm:h-10 ${emptyBg} border border-gray-200 flex items-center justify-center`}>
+        <span className="text-[10px] font-black text-black/20 select-none">--</span>
+      </div>
+    );
+  };
+
   const renderOddsCell = (event: Event, runner: RunnerOdds, type: 'back' | 'lay', index: number) => {
     const priceObj = type === 'back' ? runner.price.back[index] : runner.price.lay[index];
-    const emptyBg = type === 'back' 
-      ? (index === 0 ? 'bg-back-1/30' : 'bg-back-3') 
-      : (index === 0 ? 'bg-lay-1/30' : 'bg-lay-3');
-      
-    if (!priceObj || !priceObj.price) return <div className={`w-12 h-9 sm:w-14 sm:h-10 ${emptyBg} border-x border-white`} />;
+
+    if (!priceObj || !priceObj.price) return renderEmptyOddsCell(type, index);
 
     const rid = `${event._id}_${runner.selectionId}`;
     const lastPrice = lastPrices[rid];
@@ -150,7 +159,7 @@ export default function InPlayPage() {
                            <span className="text-match-name font-black text-[15px] uppercase tracking-tight leading-none truncate">{event.eventName}</span>
                            <span className="text-[10px] font-black italic inplay-text uppercase flex items-center gap-1 px-2 py-0.5 bg-green-50 rounded-[2px] border border-green-100 ml-1">
                               <span className="w-1.5 h-1.5 rounded-full bg-current animate-pulse" />
-                              {(event.oddsData.inPlay || (event.sportName === 'Horse Racing' && event.oddsData.totalMatched > 0)) ? 'Live Now' : 'Active'}
+                              {((event.oddsData?.inPlay ?? false) || (event.sportName === 'Horse Racing' && (event.oddsData?.totalMatched ?? 0) > 0)) ? 'Live Now' : 'Active'}
                            </span>
                         </div>
                         <div className="flex items-center gap-3">
@@ -165,15 +174,15 @@ export default function InPlayPage() {
                      <div className="flex items-center justify-end px-3 pb-3 sm:pb-0 sm:pr-4 gap-[2px]">
                         <div className="flex flex-col items-end mr-3">
                            <span className="text-[9px] text-gray-400 font-black uppercase tracking-tighter italic opacity-60">Total Matched</span>
-                           <span className="text-[10px] text-black font-black">{formatMatched(event.oddsData.totalMatched)}</span>
+                           <span className="text-[10px] text-black font-black">{formatMatched(event.oddsData?.totalMatched ?? 0)}</span>
                         </div>
                         <div className="flex gap-[1px]">
-                           {renderOddsCell(event, event.oddsData.runners[0], 'back', 0)}
-                           {renderOddsCell(event, event.oddsData.runners[0], 'lay', 0)}
+                           {event.oddsData?.runners?.[0] ? renderOddsCell(event, event.oddsData.runners[0], 'back', 0) : renderEmptyOddsCell('back', 0)}
+                           {event.oddsData?.runners?.[0] ? renderOddsCell(event, event.oddsData.runners[0], 'lay', 0) : renderEmptyOddsCell('lay', 0)}
                         </div>
                         <div className="flex gap-[1px] ml-1">
-                           {renderOddsCell(event, event.oddsData.runners[1] || event.oddsData.runners[0], 'back', 0)}
-                           {renderOddsCell(event, event.oddsData.runners[1] || event.oddsData.runners[0], 'lay', 0)}
+                           {event.oddsData?.runners?.[0] ? renderOddsCell(event, event.oddsData.runners[1] || event.oddsData.runners[0], 'back', 0) : renderEmptyOddsCell('back', 0)}
+                           {event.oddsData?.runners?.[0] ? renderOddsCell(event, event.oddsData.runners[1] || event.oddsData.runners[0], 'lay', 0) : renderEmptyOddsCell('lay', 0)}
                         </div>
                         <Link href={`/match/${event._id}`} className="ml-2 p-1.5 bg-gray-50 hover:bg-gray-100 rounded-sm text-gray-400 hover:text-match-name transition-colors">
                            <ChevronRight className="w-4 h-4" strokeWidth={3} />
