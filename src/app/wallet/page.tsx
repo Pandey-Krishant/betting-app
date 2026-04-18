@@ -1,6 +1,6 @@
 'use client';
 
-import { useStore } from '@/store/useStore';
+import { useAuthStore } from '@/store/useAuthStore';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
@@ -10,7 +10,7 @@ import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 
 export default function Wallet() {
-  const { currentUser, transactions } = useStore();
+  const { user: currentUser, transactions } = useAuthStore();
   const router = useRouter();
 
   useEffect(() => {
@@ -19,7 +19,7 @@ export default function Wallet() {
 
   if (!currentUser) return null;
 
-  const userTransactions = transactions.filter(t => t.userId === currentUser.id).reverse();
+  const userTransactions = transactions.filter(t => t.username === currentUser.username).reverse();
 
   const handleAddFunds = () => {
     toast.success('Addition of funds initiated.', { description: 'Processing via secure payment gateway...' });
