@@ -126,7 +126,10 @@ export default function Home() {
                  { name: 'Cricket', icon: '🏏' },
                  { name: 'Football', icon: '⚽' },
                  { name: 'Tennis', icon: '🎾' },
-                 { name: 'Horse Racing', icon: '🏇' }
+                 { name: 'Horse Racing', icon: '🏇' },
+                 { name: 'Greyhounds', icon: '🐕' },
+                 { name: 'Basketball', icon: '🏀' },
+                 { name: 'Kabaddi', icon: '🤼' }
                ].map((sport) => {
                  const sportCount = events.filter(e => e.sportName === sport.name).length;
                  return (
