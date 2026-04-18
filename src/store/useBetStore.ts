@@ -1,28 +1,11 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-
-export interface Bet {
-  id: string;
-  userId: string;
-  matchId: string;
-  eventName: string;
-  marketId: string;
-  marketName: string;
-  selectionId: number;
-  selectionName: string;
-  type: 'back' | 'lay';
-  odds: number;
-  stake: number;
-  liability: number;
-  profit: number;
-  status: 'open' | 'won' | 'lost' | 'void';
-  createdAt: string;
-}
+import { Bet } from '@/types/betting';
 
 interface BetState {
   openBets: Bet[];
   addBet: (bet: Bet) => void;
-  settleBet: (betId: string, status: 'won' | 'lost' | 'void') => void;
+  settleBet: (betId: string, status: Bet['status']) => void;
 }
 
 export const useBetStore = create<BetState>()(
@@ -44,7 +27,7 @@ interface BetSlipState {
     eventName: string;
     marketId: string;
     marketName: string;
-    selectionId: number;
+    selectionId: string | number;
     selectionName: string;
     type: 'back' | 'lay';
     price: number;
@@ -54,7 +37,7 @@ interface BetSlipState {
   setSelection: (selection: BetSlipState['selection']) => void;
   setOdds: (odds: number) => void;
   setStake: (stake: string) => void;
-  clear: () => void;
+  clearSelection: () => void;
 }
 
 export const useBetSlipStore = create<BetSlipState>((set) => ({
@@ -66,5 +49,5 @@ export const useBetSlipStore = create<BetSlipState>((set) => ({
   },
   setOdds: (odds) => set({ odds }),
   setStake: (stake) => set({ stake }),
-  clear: () => set({ selection: null, odds: 0, stake: '' }),
+  clearSelection: () => set({ selection: null, odds: 0, stake: '' }),
 }));

@@ -1,6 +1,7 @@
 'use client';
 
-import { useEventsStore, Event, RunnerOdds } from '@/store/useEventsStore';
+import { useEventsStore } from '@/store/useEventsStore';
+import { Event, RunnerOdds } from '@/types/betting';
 import { useBetSlipStore, useBetStore } from '@/store/useBetStore';
 import { useParams } from 'next/navigation';
 import { useState, useEffect } from 'react';
@@ -38,7 +39,7 @@ export default function MatchDetail() {
     return `₹${num.toLocaleString()}`;
   };
 
-  const getRunnerPnl = (selectionId: number) => {
+  const getRunnerPnl = (selectionId: string | number) => {
     const relevantBets = openBets.filter(b => b.matchId === id && b.selectionId === selectionId && b.status === 'open');
     return relevantBets.reduce((acc, b) => acc + (b.type === 'back' ? b.profit : -b.liability), 0);
   };

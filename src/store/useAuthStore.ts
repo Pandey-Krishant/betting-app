@@ -1,15 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-
-export interface User {
-  username: string;
-  password?: string;
-  role: 'user' | 'admin';
-  balance: number;
-  exposure: number;
-  isUnlimited?: boolean;
-  status: 'active' | 'banned';
-}
+import { User } from '@/types/betting';
 
 interface AuthState {
   user: User | null;

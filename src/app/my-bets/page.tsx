@@ -8,7 +8,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 
 export default function MyBets() {
-  const { bets, matches, markets, currentUser } = useStore();
+  const { bets, matches, currentUser } = useStore();
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
 
@@ -67,10 +67,10 @@ export default function MyBets() {
                   <tbody>
                     {openBets.length === 0 ? (
                       <tr><td colSpan={7} className="text-center py-8">No open bets.</td></tr>
-                    ) : openBets.map(bet => {
+                    ) : userBets.map(bet => {
                       const match = matches.find(m => m.id === bet.matchId);
-                      const market = markets.find(m => m.id === bet.marketId);
-                      const selection = market?.selections.find(s => s.id === bet.selectionId);
+                      const market = match?.markets.find(m => m.id === bet.marketId);
+                      const runner = market?.runners.find(r => r.id === (bet as any).runnerId || (bet as any).selectionId);
                       const profit = bet.type === 'back' ? ((bet.odds - 1) * bet.stake) : bet.stake;
                       
                       return (
@@ -79,7 +79,7 @@ export default function MyBets() {
                             <div className="font-bold text-white mb-0.5 whitespace-nowrap">{match?.teamA} v {match?.teamB}</div>
                             <div className="text-[10px] uppercase">{market?.name}</div>
                           </td>
-                          <td className="px-4 py-3 font-bold text-white whitespace-nowrap">{selection?.name}</td>
+                          <td className="px-4 py-3 font-bold text-white whitespace-nowrap">{runner?.name || bet.selectionName}</td>
                           <td className="px-4 py-3 font-bold uppercase tracking-wider text-[10px]"><span className={`px-2 py-1 rounded-sm ${bet.type === 'back' ? 'bg-back/20 text-back' : 'bg-lay/20 text-lay'}`}>{bet.type}</span></td>
                           <td className="px-4 py-3 text-right font-bold text-white">{bet.odds.toFixed(2)}</td>
                           <td className="px-4 py-3 text-right">₹{bet.stake.toFixed(2)}</td>
