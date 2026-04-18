@@ -34,7 +34,7 @@ export function useLiveMatches() {
 
   useEffect(() => {
     fetchMatches();
-    const interval = setInterval(fetchMatches, 10000); // Polling every 10s
+    const interval = setInterval(fetchMatches, 3000); // Polling every 3s for better real-time sync
     return () => clearInterval(interval);
   }, [fetchMatches]);
 

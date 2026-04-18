@@ -42,8 +42,8 @@ export default function SportsPage() {
   };
 
   const renderOddsCell = (event: Event, runner: RunnerOdds, type: 'back' | 'lay', index: number) => {
-    const priceObj = type === 'back' ? runner.price.back[index] : runner.price.lay[index];
-    if (!priceObj || !priceObj.price) return <div className="w-12 h-9 sm:w-14 sm:h-10 bg-gray-50 border-x border-white" />;
+    const emptyBg = type === 'back' ? 'bg-back-3' : 'bg-lay-3';
+    if (!priceObj || !priceObj.price) return <div className={`w-12 h-9 sm:w-14 sm:h-10 ${emptyBg} border-x border-white`} />;
 
     const rid = `${event._id}_${runner.selectionId}`;
     const lastPrice = lastPrices[rid];

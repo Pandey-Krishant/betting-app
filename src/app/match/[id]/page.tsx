@@ -45,8 +45,8 @@ export default function MatchDetail() {
   };
 
   const renderOddsCell = (runner: RunnerOdds, type: 'back' | 'lay', index: number) => {
-    const priceObj = type === 'back' ? runner.price.back[index] : runner.price.lay[index];
-    if (!priceObj || !priceObj.price) return <div className="w-[50px] sm:w-[58px] h-10 bg-gray-50 border-x border-white" />;
+    const emptyBg = type === 'back' ? 'bg-back-3' : 'bg-lay-3';
+    if (!priceObj || !priceObj.price) return <div className={`w-[50px] sm:w-[58px] h-10 ${emptyBg} border-x border-white`} />;
 
     const rid = `${event._id}_${runner.selectionId}`;
     const lastPrice = lastPrices[rid];
@@ -159,8 +159,8 @@ export default function MatchDetail() {
                 <div className="bg-gray-50 flex items-center border-b border-gray-200">
                    <div className="flex-1" />
                    <div className="flex">
-                      <div className="w-[150px] sm:w-[174px] flex items-center justify-center text-[11px] text-[#243a48] font-black uppercase tracking-widest italic bg-[#72bbef]/10 py-1.5 border-r border-[#72bbef]/20">Back</div>
-                      <div className="w-[150px] sm:w-[174px] flex items-center justify-center text-[11px] text-[#d0021b] font-black uppercase tracking-widest italic bg-[#faa9ba]/10 py-1.5">Lay</div>
+                      <div className="w-[150px] sm:w-[174px] flex items-center justify-center text-[11px] text-[#243a48] font-black uppercase tracking-widest italic bg-[#72bbef]/30 py-1.5 border-r border-[#72bbef]/30">Back</div>
+                      <div className="w-[150px] sm:w-[174px] flex items-center justify-center text-[11px] text-[#d0021b] font-black uppercase tracking-widest italic bg-[#faa9ba]/30 py-1.5">Lay</div>
                    </div>
                 </div>
 
