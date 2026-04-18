@@ -1,6 +1,10 @@
 {
   "name": "betting",
   "version": "0.1.0",
+  "description": "20wickets Betting Exchange Clone",
+  "engines": {
+    "node": ">=20.x"
+  },
   "private": true,
   "scripts": {
     "dev": "next dev",
