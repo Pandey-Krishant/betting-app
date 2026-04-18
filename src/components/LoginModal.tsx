@@ -46,7 +46,7 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
     <div className="fixed inset-0 z-[1100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
       <div className="w-full max-w-[360px] bg-black shadow-2xl overflow-hidden border border-gray-900 border-t-0 rounded-sm animate-in fade-in zoom-in duration-200">
         {/* Header - Matching Image */}
-        <div className="header-gradient h-12 flex items-center justify-between px-4">
+        <div className="sports-gradient h-12 flex items-center justify-between px-4">
            <span className="text-black font-black uppercase text-[15px] italic tracking-widest leading-none">Login</span>
            <button onClick={onClose}>
               <X className="w-5 h-5 text-black" strokeWidth={3} />

@@ -31,7 +31,7 @@ export default function RegisterPage() {
   return (
     <div className="min-h-screen bg-black flex items-center justify-center p-4">
       <div className="w-full max-w-[420px] bg-black shadow-2xl overflow-hidden rounded-sm border border-gray-900 border-t-0">
-        <div className="header-gradient p-6 text-black text-center">
+        <div className="sports-gradient p-6 text-black text-center">
            <div className="flex items-center justify-center gap-2 mb-1">
               <span className="text-black font-black italic text-3xl tracking-tighter">STRIKER</span>
               <span className="text-black/80 font-bold italic text-3xl ml-0.5 opacity-60">EXCHANGE</span>

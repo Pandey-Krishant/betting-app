@@ -37,7 +37,7 @@ export default function LoginPage() {
     <div className="min-h-screen bg-black flex items-center justify-center p-4">
       <div className="w-full max-w-[360px] bg-black shadow-2xl overflow-hidden border border-gray-900 border-t-0 rounded-sm">
         {/* Header - Matching Image */}
-        <div className="header-gradient h-12 flex items-center justify-between px-4">
+        <div className="sports-gradient h-12 flex items-center justify-between px-4">
            <span className="text-black font-black uppercase text-[15px] italic tracking-widest leading-none">Login</span>
            <Link href="/">
               <X className="w-5 h-5 text-black" strokeWidth={3} />
