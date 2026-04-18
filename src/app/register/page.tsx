@@ -31,21 +31,14 @@ export default function RegisterPage() {
   return (
     <div className="min-h-screen bg-black flex items-center justify-center p-4">
       <div className="w-full max-w-[420px] bg-black shadow-2xl overflow-hidden rounded-sm border border-gray-900 border-t-0">
-        <div className="sports-gradient p-6 text-black text-center">
-           <div className="flex items-center justify-center gap-2 mb-1">
-              <span className="text-black font-black italic text-3xl tracking-tighter">STRIKER</span>
-              <span className="text-black/80 font-bold italic text-3xl ml-0.5 opacity-60">EXCHANGE</span>
-           </div>
-           <p className="text-[10px] font-black uppercase tracking-widest opacity-70">Register New Member Account</p>
+        <div className="sports-gradient h-12 flex items-center justify-between px-4">
+           <span className="text-black font-black uppercase text-[15px] italic tracking-widest leading-none">Register</span>
+           <Link href="/">
+              <X className="w-5 h-5 text-black" strokeWidth={3} />
+           </Link>
         </div>
 
-        <div className="p-8 space-y-6">
-           <div className="text-center">
-              <h1 className="text-2xl font-black text-white uppercase tracking-tighter">Create Player Profile</h1>
-              <p className="text-xs text-orange-500 font-bold uppercase tracking-widest mt-1">Join the elite exchange 🏏</p>
-           </div>
-
-           <form onSubmit={handleRegister} className="space-y-4">
+        <form onSubmit={handleRegister} className="p-8 space-y-6">
               {error && <div className="p-3 bg-[#ca1010]/10 text-red-600 border border-red-100 text-[11px] font-bold uppercase text-center rounded-sm">{error}</div>}
               
               <div className="space-y-1">
