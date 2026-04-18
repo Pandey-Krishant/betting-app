@@ -2,13 +2,16 @@
 
 import { useAuthStore } from '@/store/useAuthStore';
 import { useState } from 'react';
-import { User, Wallet, Ban, Eye, Coins, X, ShieldAlert, CheckCircle } from 'lucide-react';
+import { Wallet, X, Gift, InfinityIcon, Search } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function AdminUsers() {
-  const { users, updateUserBalance, toggleUserBan } = useAuthStore();
+  const { users, updateUserBalance, toggleUserBan, setUnlimitedBalance, giftCoins } = useAuthStore();
   const [editingUser, setEditingUser] = useState<string | null>(null);
   const [amount, setAmount] = useState('');
+  const [query, setQuery] = useState('');
+  const [giftUser, setGiftUser] = useState<string | null>(null);
+  const [giftAmount, setGiftAmount] = useState('');
 
   const handleUpdate = (username: string, type: 'set' | 'add' | 'deduct') => {
     const val = parseFloat(amount);
@@ -19,12 +22,45 @@ export default function AdminUsers() {
     setAmount('');
   };
 
+  const filteredUsers = users.filter(u =>
+    u.username.toLowerCase().includes(query.toLowerCase())
+  );
+
+  const handleGift = () => {
+    if (!giftUser) return toast.error('Select user');
+    const val = parseFloat(giftAmount);
+    if (isNaN(val) || val <= 0) return toast.error('Invalid amount');
+    const res = giftCoins(giftUser, val);
+    if (!res.success) return toast.error(res.msg || 'Gift failed');
+    toast.success('Coins gifted successfully');
+    setGiftUser(null);
+    setGiftAmount('');
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between pb-4 border-b border-gray-100">
          <h2 className="font-bold text-lg uppercase tracking-widest text-[#223869] flex items-center gap-2">
             Member Management
          </h2>
+         <button
+           onClick={() => setGiftUser('')}
+           className="h-9 px-4 bg-match-inplay text-white rounded-sm text-[11px] font-black uppercase tracking-widest flex items-center gap-2 hover:opacity-95 active:scale-95 transition-all shadow-sm"
+         >
+           <Gift className="w-4 h-4" /> Gift Coins
+         </button>
+      </div>
+
+      <div className="bg-white border border-gray-100 rounded-sm p-3 flex items-center gap-3">
+         <div className="relative flex-1">
+            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search username..."
+              className="w-full bg-gray-50 border border-gray-200 outline-none focus:border-match-name px-9 py-2 rounded-sm text-sm font-bold transition-all"
+            />
+         </div>
       </div>
 
       <div className="overflow-x-auto bg-white rounded-sm border border-gray-100">
@@ -33,6 +69,8 @@ export default function AdminUsers() {
             <tr className="bg-gray-50 text-[10px] font-black text-gray-500 uppercase tracking-widest border-b border-gray-100">
               <th className="px-5 py-4 text-left">#</th>
               <th className="px-5 py-4 text-left">Username</th>
+              <th className="px-5 py-4 text-left">Mobile</th>
+              <th className="px-5 py-4 text-left">Created</th>
               <th className="px-5 py-4 text-left">Balance</th>
               <th className="px-5 py-4 text-left">Exposure</th>
               <th className="px-5 py-4 text-left">Role</th>
@@ -41,7 +79,7 @@ export default function AdminUsers() {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-50 text-[13px] font-bold">
-            {users.map((u, i) => (
+            {filteredUsers.map((u, i) => (
               <tr key={u.username} className="hover:bg-gray-50/50 transition-colors">
                 <td className="px-5 py-4 text-gray-400 font-mono">{i + 1}</td>
                 <td className="px-5 py-4">
@@ -49,6 +87,10 @@ export default function AdminUsers() {
                     <span className="text-black">{u.username}</span>
                     {u.isUnlimited && <span className="text-[16px] animate-bounce">👑</span>}
                   </div>
+                </td>
+                <td className="px-5 py-4 text-gray-500 text-[12px]">{u.mobile || '-'}</td>
+                <td className="px-5 py-4 text-gray-400 text-[11px] whitespace-nowrap">
+                  {u.createdAt ? new Date(u.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: '2-digit' }) : '-'}
                 </td>
                 <td className="px-5 py-4">
                   <span className={`font-black ${u.isUnlimited ? 'text-gold drop-shadow-sm' : 'text-black'}`}>
@@ -67,11 +109,24 @@ export default function AdminUsers() {
                 </td>
                 <td className="px-5 py-4 text-right">
                   <div className="flex items-center justify-end gap-2">
+                    <button
+                      onClick={() => setUnlimitedBalance(u.username, !u.isUnlimited)}
+                      className={`h-8 px-3 ${u.isUnlimited ? 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100' : 'bg-yellow-50 text-yellow-700 border-yellow-100 hover:bg-yellow-100'} border rounded-sm text-[10px] uppercase font-black transition-all flex items-center gap-1.5`}
+                      title="Toggle unlimited (∞)"
+                    >
+                      <InfinityIcon className="w-3.5 h-3.5" /> ∞
+                    </button>
                     <button 
                       onClick={() => setEditingUser(u.username)}
                       className="h-8 px-3 bg-blue-50 text-match-name border border-blue-100 hover:bg-blue-100 rounded-sm text-[10px] uppercase font-black transition-all"
                     >
                       Edit
+                    </button>
+                    <button
+                      onClick={() => setGiftUser(u.username)}
+                      className="h-8 px-3 bg-green-50 text-green-700 border border-green-100 hover:bg-green-100 rounded-sm text-[10px] uppercase font-black transition-all"
+                    >
+                      Gift
                     </button>
                     <button 
                       onClick={() => { toggleUserBan(u.username); toast.info(`User ${u.status === 'active' ? 'Suspended' : 'Activated'}`); }}
@@ -120,6 +175,64 @@ export default function AdminUsers() {
                  </div>
               </div>
            </div>
+        </div>
+      )}
+
+      {giftUser !== null && (
+        <div className="fixed inset-0 z-[1100] bg-black/70 flex items-center justify-center p-4">
+          <div className="bg-white rounded-sm w-full max-w-[360px] shadow-2xl overflow-hidden animate-in zoom-in duration-200">
+            <div className="exchange-gradient p-4 text-white flex items-center justify-between">
+              <h3 className="font-bold text-[14px] uppercase tracking-widest flex items-center gap-2">
+                <Gift className="w-4 h-4" /> Gift Coins
+              </h3>
+              <button onClick={() => setGiftUser(null)} className="hover:rotate-90 transition-all">
+                <X className="w-5 h-5"/>
+              </button>
+            </div>
+
+            <div className="p-6 space-y-4">
+              <div className="space-y-1">
+                <label className="text-[10px] uppercase font-bold tracking-widest text-gray-400">User</label>
+                <select
+                  value={giftUser}
+                  onChange={(e) => setGiftUser(e.target.value)}
+                  className="w-full bg-gray-50 border border-gray-200 px-3 py-2 text-[13px] font-bold rounded-sm focus:outline-none focus:border-match-name"
+                >
+                  <option value="">Select user</option>
+                  {users.filter(u => u.role === 'user').map(u => (
+                    <option key={u.username} value={u.username}>{u.username}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[10px] uppercase font-bold tracking-widest text-gray-400">Amount</label>
+                <input
+                  type="number"
+                  value={giftAmount}
+                  onChange={(e) => setGiftAmount(e.target.value)}
+                  className="w-full bg-blue-50 border-2 border-blue-100 p-4 text-[20px] font-black focus:border-[#fd8f3b] focus:bg-white transition-all focus:outline-none rounded-sm text-center"
+                  placeholder="0.00"
+                  autoFocus
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-2 pt-2">
+                <button
+                  onClick={() => setGiftUser(null)}
+                  className="py-3 rounded-sm bg-gray-100 text-gray-600 font-black uppercase text-[11px] tracking-widest hover:bg-gray-200 transition-all"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleGift}
+                  className="py-3 rounded-sm bg-match-inplay text-white font-black uppercase text-[11px] tracking-widest shadow-lg active:scale-95 transition-all"
+                >
+                  Send Gift
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>

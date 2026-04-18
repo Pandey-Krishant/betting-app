@@ -2,12 +2,16 @@
 
 import { useState, useEffect } from 'react';
 import { useBetSlipStore } from '@/store/useBetStore';
-import { X, Trash2, ArrowRight } from 'lucide-react';
+import { useBetStore } from '@/store/useBetStore';
+import { useAuthStore } from '@/store/useAuthStore';
+import { X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 
 export default function BetSlip() {
   const { selection, clearSelection } = useBetSlipStore();
+  const addBet = useBetStore(state => state.addBet);
+  const { user, updateBalance, updateExposure, addTransaction } = useAuthStore();
   const [stake, setStake] = useState<number>(0);
   const [odds, setOdds] = useState<number>(0);
 
@@ -24,13 +28,68 @@ export default function BetSlip() {
     : (odds - 1) * stake;
 
   const handlePlaceBet = () => {
+    if (!user) {
+      toast.error('Please login to place bet');
+      return;
+    }
     if (stake <= 0) {
       toast.error('Please enter stake amount');
+      return;
+    }
+    if (!user.isUnlimited && user.balance < stake) {
+      toast.error('Insufficient balance');
       return;
     }
     toast.success('Wait for bet confirmation...');
     // Real API integration would go here
     setTimeout(() => {
+       const now = new Date().toISOString();
+       const betId = `b_${Date.now()}_${Math.random().toString(16).slice(2)}`;
+       const liability = selection.type === 'lay' ? (odds - 1) * stake : stake;
+
+       addBet({
+         id: betId,
+         userId: user.username,
+         matchId: selection.matchId,
+         eventName: selection.eventName,
+         marketId: selection.marketId,
+         marketName: selection.marketName,
+         selectionId: selection.selectionId,
+         selectionName: selection.selectionName,
+         type: selection.type,
+         odds,
+         stake,
+         liability,
+         profit: selection.type === 'back' ? (odds - 1) * stake : stake,
+         pnl: 0,
+         status: 'open',
+         createdAt: now
+       });
+
+       updateExposure(liability);
+       if (!user.isUnlimited) {
+         updateBalance(-stake);
+         addTransaction({
+           id: `tx_${betId}`,
+           username: user.username,
+           type: 'debit',
+           amount: stake,
+           description: `Bet placed: ${selection.eventName} (${selection.type.toUpperCase()})`,
+           createdAt: now,
+           balanceAfter: user.balance - stake
+         });
+       } else {
+         addTransaction({
+           id: `tx_${betId}`,
+           username: user.username,
+           type: 'debit',
+           amount: stake,
+           description: `Bet placed (∞ mode): ${selection.eventName} (${selection.type.toUpperCase()})`,
+           createdAt: now,
+           balanceAfter: user.balance
+         });
+       }
+
        toast.success('Bet Placed Successfully!');
        clearSelection();
     }, 1500);

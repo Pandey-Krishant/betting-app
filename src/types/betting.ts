@@ -60,12 +60,24 @@ export interface User {
   id?: string;
   username: string;
   password?: string;
+  mobile?: string;
+  createdAt?: string;
   role: 'user' | 'admin';
   balance: number;
   exposure: number;
   isUnlimited?: boolean;
   status?: 'active' | 'banned';
   transactions?: any[];
+}
+
+export interface Transaction {
+  id: string;
+  username: string;
+  type: 'credit' | 'debit';
+  amount: number;
+  description: string;
+  createdAt: string;
+  balanceAfter?: number;
 }
 
 // Legacy/Admin Market Types

@@ -23,15 +23,15 @@ export default function AccountPage() {
 
   if (!mounted || !user) return null;
 
+  const balanceLabel = user.isUnlimited ? '∞' : `₹${user.balance.toLocaleString('en-IN')}`;
+
   const menuItems = [
-    { label: 'My Profile', icon: UserIcon, href: '/account' },
-    { label: 'Multi Markets', icon: Activity, href: '/account' },
-    { label: 'Rolling Commission', icon: TrendingUp, href: '/account' },
-    { label: 'Account Statement', icon: FileText, href: '/account' },
-    { label: 'Bet History', icon: History, href: '/account' },
-    { label: 'Profit & Loss', icon: TrendingUp, href: '/account' },
-    { label: 'Password History', icon: KeyRound, href: '/account' },
-    { label: 'Activity Log', icon: ShieldEllipsis, href: '/account' },
+    { label: 'My Profile', icon: UserIcon, href: '/account/profile' },
+    { label: 'Multi Markets', icon: Activity, href: '/account/markets' },
+    { label: 'Rolling Commission', icon: TrendingUp, href: '/account/commission' },
+    { label: 'Account Statement', icon: FileText, href: '/account/statement' },
+    { label: 'Bets History', icon: History, href: '/account/bets' },
+    { label: 'Profit & Loss', icon: BarChart3, href: '/account/pl' },
   ];
 
   return (
@@ -43,7 +43,7 @@ export default function AccountPage() {
              </div>
              <div>
                 <h1 className="font-bold text-[20px] uppercase tracking-wider">{user.username} {user.isUnlimited && '👑'}</h1>
-                <p className="text-[12px] opacity-80 font-bold uppercase tracking-widest">Main Wallet: ₹{user.balance.toLocaleString('en-IN')}</p>
+                <p className="text-[12px] opacity-80 font-bold uppercase tracking-widest">Main Wallet: {balanceLabel}</p>
              </div>
           </div>
        </div>
@@ -52,7 +52,7 @@ export default function AccountPage() {
           <div className="grid grid-cols-2 gap-3 mb-4">
              <div className="bg-white p-4 border border-gray-200 shadow-sm flex flex-col items-center">
                 <span className="text-gray-400 text-[10px] uppercase font-bold tracking-widest">Balance</span>
-                <span className="text-xl font-bold text-[#223869]">₹{user.balance.toLocaleString('en-IN')}</span>
+                <span className="text-xl font-bold text-[#223869]">{balanceLabel}</span>
              </div>
              <div className="bg-white p-4 border border-gray-200 shadow-sm flex flex-col items-center">
                 <span className="text-gray-400 text-[10px] uppercase font-bold tracking-widest">Exposure</span>
@@ -64,6 +64,7 @@ export default function AccountPage() {
              {menuItems.map((item, i) => (
                 <div 
                   key={i}
+                  onClick={() => router.push(item.href)}
                   className={`flex justify-between items-center px-4 py-4 cursor-pointer hover:bg-gray-50 transition-all active:bg-gray-100 ${i < menuItems.length - 1 ? 'border-b border-gray-100' : ''}`}
                 >
                    <div className="flex items-center gap-4">

@@ -1,6 +1,6 @@
 'use client';
 
-import { useStore } from '@/store/useStore';
+import { useAuthStore } from '@/store/useAuthStore';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Shield, InfinityIcon } from 'lucide-react';
@@ -15,13 +15,13 @@ import {
 } from "@/components/ui/dialog";
 
 export default function AdminCoins() {
-  const { currentUser, setUnlimitedBalance } = useStore();
+  const { user, setUnlimitedBalance } = useAuthStore();
   const [showModal, setShowModal] = useState(false);
 
   const handleToggleUnlimited = () => {
-    if (!currentUser || !currentUser.id) return;
-    const newState = !currentUser.isUnlimited;
-    setUnlimitedBalance(currentUser.id, newState);
+    if (!user) return;
+    const newState = !user.isUnlimited;
+    setUnlimitedBalance(user.username, newState);
     setShowModal(false);
     
     if (newState) {
@@ -56,10 +56,10 @@ export default function AdminCoins() {
             
             <Button 
                onClick={() => setShowModal(true)}
-               className={`w-full h-12 transition-all font-bold tracking-widest uppercase flex gap-2 border-none rounded-sm shadow-md ${currentUser?.isUnlimited ? 'bg-gray-200 text-gray-800' : 'bg-gold text-black hover:bg-yellow-500'}`}
+               className={`w-full h-12 transition-all font-bold tracking-widest uppercase flex gap-2 border-none rounded-sm shadow-md ${user?.isUnlimited ? 'bg-gray-200 text-gray-800' : 'bg-gold text-black hover:bg-yellow-500'}`}
             >
               <InfinityIcon className="w-5 h-5" />
-              {currentUser?.isUnlimited ? 'Disable ∞ Mode' : 'Activate ∞ Mode'}
+              {user?.isUnlimited ? 'Disable ∞ Mode' : 'Activate ∞ Mode'}
             </Button>
 
             <Dialog open={showModal} onOpenChange={setShowModal}>
@@ -69,7 +69,7 @@ export default function AdminCoins() {
                     Confirm ∞ Access
                   </DialogTitle>
                   <DialogDescription className="text-gray-600 font-medium py-3">
-                    {currentUser?.isUnlimited 
+                    {user?.isUnlimited 
                       ? 'Are you sure you want to return to standard balance operations?'
                       : 'Activating Unlimited mode will lock your balance at ∞. You can place as many bets as you want without any wallet deductions.'
                     }

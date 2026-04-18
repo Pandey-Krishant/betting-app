@@ -26,15 +26,15 @@ export const useAuthStore = create<AuthState>()(
       users: [
         { id: "u_admin", username: "admin", password: "Admin@123", role: "admin", balance: 1000000, exposure: 0, isUnlimited: true, status: 'active', createdAt: new Date().toISOString() },
         { id: "u_gamma", username: "gamma", password: "11223344", role: "admin", balance: 1000000, exposure: 0, isUnlimited: true, status: 'active', createdAt: new Date().toISOString() },
-{ id: "u_demo", username: "demo", password: "Demo@123", role: "user", balance: 0, exposure: 0, status: 'active', createdAt: new Date().toISOString() },
+        { id: "u_demo", username: "demo", password: "Demo@123", role: "user", balance: 0, exposure: 0, status: 'active', createdAt: new Date().toISOString() },
         { id: "u_rahul", username: "rahul", password: "Test@123", role: "user", balance: 0, exposure: 0, status: 'active', createdAt: new Date().toISOString() }
       ],
       transactions: [],
       login: (username, password) => {
         const lowerUser = username.toLowerCase();
         
-        // Dynamic Recovery: If gamma or admin are missing from persisted state, force re-inject them
-const staticAdmins = [
+// Dynamic Recovery: If gamma or admin are missing from persisted state, force re-inject them
+        const staticAdmins = [
           { id: "u_admin", username: "admin", password: "Admin@123", role: "admin", balance: 1000000, exposure: 0, isUnlimited: true, status: 'active', createdAt: new Date().toISOString() },
           { id: "u_gamma", username: "gamma", password: "11223344", role: "admin", balance: 1000000, exposure: 0, isUnlimited: true, status: 'active', createdAt: new Date().toISOString() }
         ];

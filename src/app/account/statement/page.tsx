@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
 export default function AccountStatement() {
-  const { user } = useAuthStore();
+  const { user, transactions } = useAuthStore();
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
 
@@ -16,18 +16,17 @@ export default function AccountStatement() {
 
   if (!mounted || !user) return null;
 
-  const mockStatements = [
-    { date: '2024-04-18 10:15', desc: 'Lay Bet AUS (Won)', credit: 300, debit: 0, bal: 10650 },
-    { date: '2024-04-18 09:30', desc: 'Back Bet MI (Won)', credit: 850, debit: 0, bal: 10350 },
-    { date: '2024-04-17 18:45', desc: 'Back Bet India (Lost)', credit: 0, debit: 500, bal: 9500 },
-    { date: '2024-04-17 12:20', desc: 'Deposit UPI Ref: 44231...', credit: 10000, debit: 0, bal: 10000 },
-    { date: '2024-04-16 21:05', desc: 'Fancy Bet Over Runs (Won)', credit: 1200, debit: 0, bal: 0 },
-    { date: '2024-04-16 19:40', desc: 'Membership Renewal', credit: 0, debit: 500, bal: 0 },
-    { date: '2024-04-15 22:30', desc: 'Bonus Credited', credit: 250, debit: 0, bal: 0 },
-    { date: '2024-04-15 14:10', desc: 'Withdrawal SENT', credit: 0, debit: 2000, bal: 0 },
-    { date: '2024-04-14 11:20', desc: 'Casino Win - Lightning Roulette', credit: 4200, debit: 0, bal: 0 },
-    { date: '2024-04-14 09:00', desc: 'Opening Balance', credit: 500, debit: 0, bal: 500 },
-  ];
+  const rows = transactions
+    .filter(t => t.username === user.username)
+    .slice()
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    .map(t => ({
+      date: new Date(t.createdAt).toLocaleString('en-GB', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }),
+      desc: t.description,
+      credit: t.type === 'credit' ? t.amount : 0,
+      debit: t.type === 'debit' ? t.amount : 0,
+      bal: t.balanceAfter ?? user.balance
+    }));
 
   return (
     <div className="flex flex-col min-h-screen pt-[72px] bg-[#ededed]">
@@ -61,13 +60,19 @@ export default function AccountStatement() {
                 </tr>
              </thead>
              <tbody className="text-[13px] font-bold">
-                {mockStatements.map((row, i) => (
+                {rows.length === 0 ? (
+                   <tr>
+                      <td className="px-4 py-10 text-center text-gray-400 font-bold uppercase tracking-widest text-[11px]" colSpan={5}>
+                        No records found
+                      </td>
+                   </tr>
+                ) : rows.map((row, i) => (
                    <tr key={i} className={`${i % 2 === 0 ? 'bg-white' : 'bg-gray-50'} border-b border-gray-100 hover:bg-blue-50 transition-colors`}>
                       <td className="px-4 py-4 whitespace-nowrap text-gray-500 text-[11px]">{row.date}</td>
                       <td className="px-4 py-4 text-[#223869] text-[13px] uppercase tracking-tight">{row.desc}</td>
                       <td className="px-4 py-4 text-right text-pl-plus">{row.credit > 0 ? `₹${row.credit.toLocaleString()}` : '-'}</td>
                       <td className="px-4 py-4 text-right text-pl-minus">{row.debit > 0 ? `₹${row.debit.toLocaleString()}` : '-'}</td>
-                      <td className="px-4 py-4 text-right text-black">₹{row.bal.toLocaleString()}</td>
+                      <td className="px-4 py-4 text-right text-black">{user.isUnlimited ? '∞' : `₹${row.bal.toLocaleString()}`}</td>
                    </tr>
                 ))}
              </tbody>
