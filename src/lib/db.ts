@@ -1,9 +1,9 @@
 import mongoose from 'mongoose';
 
-const MONGODB_URI = process.env.MONGODB_URI!;
+const MONGODB_URI = process.env.MONGODB_URI;
 
 if (!MONGODB_URI) {
-  throw new Error('Please define MONGODB_URI in .env.local');
+  console.warn('MONGODB_URI not defined - DB operations will fail');
 }
 
 type MongooseCache = {
@@ -22,6 +22,10 @@ if (!globalWithMongoose.mongoose) {
 const cached = globalWithMongoose.mongoose;
 
 async function dbConnect() {
+  if (!MONGODB_URI) {
+    throw new Error('Please define MONGODB_URI in .env');
+  }
+
   if (cached.conn) {
     return cached.conn;
   }
@@ -33,16 +37,13 @@ async function dbConnect() {
 
     cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongoose) => {
       return mongoose;
+    }).catch((err) => {
+      cached.promise = null;
+      throw err;
     });
   }
 
-  try {
-    cached.conn = await cached.promise;
-  } catch (e) {
-    cached.promise = null;
-    throw e;
-  }
-
+  cached.conn = await cached.promise;
   return cached.conn;
 }
 

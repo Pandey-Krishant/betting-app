@@ -2,7 +2,11 @@
   "permissions": {
     "allow": [
       "Bash(git commit -m \"Add authentication system\")",
-      "Bash(git add .)"
+      "Bash(git add .)",
+      "Bash(git commit -m \"Fix Vercel build - add missing deps and remove invalid jsx\")",
+      "Bash(git push)",
+      "Bash(git add src/app/register/page.tsx)",
+      "Bash(git commit -m \"Fix extra closing div in register page\")"
     ]
   }
 }

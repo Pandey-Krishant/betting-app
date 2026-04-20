@@ -4,6 +4,12 @@ import { User } from '@/models/User';
 import { generateToken } from '@/lib/auth';
 import { ensureDemoUser, ensureDevAdminUser } from '@/lib/seedDevUsers';
 
+export const dynamic = 'force-dynamic';
+
+export async function GET() {
+  return NextResponse.json({ success: false, msg: "Method not allowed - Use POST" }, { status: 405 });
+}
+
 export async function POST(request: NextRequest) {
   try {
     await dbConnect();
@@ -64,4 +70,3 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: false, msg: 'Server error' }, { status: 500 });
   }
 }
-

@@ -103,7 +103,7 @@ export default function RegisterPage() {
 
               <button 
                 type="submit"
-                className="w-full header-gradient text-black font-black py-4 uppercase tracking-widest text-[14px] rounded-sm shadow-xl active:scale-95 transition-all flex items-center justify-center gap-2 mt-4"
+                className="w-full sports-gradient text-black font-black py-4 uppercase tracking-widest text-[14px] rounded-sm shadow-xl active:scale-95 transition-all flex items-center justify-center gap-2 mt-4"
               >
                 Create Account <ChevronRight className="w-5 h-5" />
               </button>
