@@ -73,9 +73,10 @@ export interface User {
 export interface Transaction {
   id: string;
   username: string;
-  type: 'credit' | 'debit';
+  type: string;
   amount: number;
   description: string;
+  note: string;
   createdAt: string;
   balanceAfter?: number;
 }
