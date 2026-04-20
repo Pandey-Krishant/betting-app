@@ -219,7 +219,7 @@ export default function MatchDetail() {
               </div>
             )}
 
-            {(activeTab === 'All' || activeTab === 'Session') && event.isFancy && (
+            {(activeTab === 'All' || activeTab === 'Session') && (
                <div className="bg-white shadow-sm border border-gray-200">
                   <div className="fancy-gradient px-3 py-2 text-white font-bold text-[14px] uppercase tracking-wide">Session Bets</div>
                   <div className="divide-y divide-gray-100">
