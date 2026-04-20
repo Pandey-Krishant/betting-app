@@ -131,7 +131,7 @@ export default function MatchDetail() {
           {/* Dynamic Tabs based on Sport */}
           <div className="bg-white p-1 flex gap-1 overflow-x-auto no-scrollbar shadow-sm rounded-sm">
              {['All', 'Match Odds', 
-               ...(event.sportName === 'Cricket' ? ['Bookmaker', 'Fancy'] : []),
+               ...(event.sportName === 'Cricket' ? ['Bookmaker', 'Session'] : []),
                'Sportsbook'
              ].map(tab => (
                 <button 
@@ -219,9 +219,9 @@ export default function MatchDetail() {
               </div>
             )}
 
-            {(activeTab === 'All' || activeTab === 'Fancy') && event.isFancy && (
+            {(activeTab === 'All' || activeTab === 'Session') && event.isFancy && (
                <div className="bg-white shadow-sm border border-gray-200">
-                  <div className="fancy-gradient px-3 py-2 text-white font-bold text-[14px] uppercase tracking-wide">Fancy Bets</div>
+                  <div className="fancy-gradient px-3 py-2 text-white font-bold text-[14px] uppercase tracking-wide">Session Bets</div>
                   <div className="divide-y divide-gray-100">
                      {fancyMarkets.map((m, i) => (
                         <div key={i} className={`flex items-center justify-between p-3 relative ${m.status === 'SUSPENDED' ? 'opacity-70 bg-gray-50' : ''}`}>
@@ -236,11 +236,39 @@ export default function MatchDetail() {
                               </div>
                            ) : (
                               <div className="flex gap-[1px]">
-                                 <div className="w-14 h-11 bg-[#faa9ba] flex flex-col items-center justify-center rounded-sm cursor-pointer hover:opacity-80 transition-all shadow-sm">
+                                 <div
+                                   onClick={() => setSelection({
+                                     matchId: event._id,
+                                     eventName: event.eventName,
+                                     marketId: m.id,
+                                     marketName: 'Session',
+                                     selectionId: m.id,
+                                     selectionName: m.name,
+                                     type: 'session',
+                                     price: m.no,
+                                     sessionValue: m.no,
+                                     isSessionYes: false
+                                   })}
+                                   className="w-14 h-11 bg-[#faa9ba] flex flex-col items-center justify-center rounded-sm cursor-pointer hover:opacity-80 transition-all shadow-sm"
+                                 >
                                     <span className="text-[10px] font-black text-black/40 tracking-tighter -mb-1">NO</span>
                                     <span className="text-[17px] font-black text-black">{m.no}</span>
                                  </div>
-                                 <div className="w-14 h-11 bg-[#72bbef] flex flex-col items-center justify-center rounded-sm cursor-pointer hover:opacity-80 transition-all shadow-sm">
+                                 <div
+                                   onClick={() => setSelection({
+                                     matchId: event._id,
+                                     eventName: event.eventName,
+                                     marketId: m.id,
+                                     marketName: 'Session',
+                                     selectionId: m.id,
+                                     selectionName: m.name,
+                                     type: 'session',
+                                     price: m.yes,
+                                     sessionValue: m.yes,
+                                     isSessionYes: true
+                                   })}
+                                   className="w-14 h-11 bg-[#72bbef] flex flex-col items-center justify-center rounded-sm cursor-pointer hover:opacity-80 transition-all shadow-sm"
+                                 >
                                     <span className="text-[10px] font-black text-black/40 tracking-tighter -mb-1">YES</span>
                                     <span className="text-[17px] font-black text-black">{m.yes}</span>
                                  </div>

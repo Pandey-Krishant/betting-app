@@ -29,8 +29,10 @@ interface BetSlipState {
     marketName: string;
     selectionId: string | number;
     selectionName: string;
-    type: 'back' | 'lay';
+    type: 'back' | 'lay' | 'session';
     price: number;
+    sessionValue?: number; // For session bets (the run target)
+    isSessionYes?: boolean; // For session Yes/No
   } | null;
   odds: number;
   stake: string;

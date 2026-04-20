@@ -23,9 +23,14 @@ export default function BetSlip() {
 
   if (!selection) return null;
 
-  const pnl = selection.type === 'back' 
-    ? (odds - 1) * stake 
-    : (odds - 1) * stake;
+  const isSession = selection.type === 'session';
+
+  // For session bets: Yes = back, No = lay logic
+  const pnl = isSession
+    ? (selection.isSessionYes ? 1 : -1) * (odds - 1) * stake
+    : selection.type === 'back'
+      ? (odds - 1) * stake
+      : (odds - 1) * stake;
 
   const handlePlaceBet = () => {
     if (!user) {
@@ -45,7 +50,14 @@ export default function BetSlip() {
     setTimeout(() => {
        const now = new Date().toISOString();
        const betId = `b_${Date.now()}_${Math.random().toString(16).slice(2)}`;
-       const liability = selection.type === 'lay' ? (odds - 1) * stake : stake;
+
+       // Session bets have different liability calc
+       const betType = selection.type === 'session'
+         ? (selection.isSessionYes ? 'back' : 'lay')
+         : selection.type;
+       const liability = selection.type === 'session'
+         ? (selection.isSessionYes ? (odds - 1) * stake : stake)
+         : selection.type === 'lay' ? (odds - 1) * stake : stake;
 
        addBet({
          id: betId,
@@ -56,7 +68,7 @@ export default function BetSlip() {
          marketName: selection.marketName,
          selectionId: selection.selectionId,
          selectionName: selection.selectionName,
-         type: selection.type,
+         type: betType,
          odds,
          stake,
          liability,
@@ -120,10 +132,14 @@ export default function BetSlip() {
               <div className="flex justify-between items-start mb-3">
                  <div>
                     <div className="text-match-name font-black text-[13px] uppercase tracking-tight">{selection.eventName}</div>
-                    <div className="text-[#243a48] font-bold text-[11px] opacity-60 uppercase">{selection.marketName}</div>
+                    <div className="text-[#243a48] font-bold text-[11px] opacity-60 uppercase">
+                      {selection.type === 'session' && selection.sessionValue
+                        ? `Session: ${selection.selectionName} ${selection.isSessionYes ? '>' : '<'} ${selection.sessionValue}`
+                        : selection.marketName}
+                    </div>
                  </div>
-                 <div className={`px-2 py-0.5 rounded-sm text-[10px] font-black uppercase text-white ${selection.type === 'back' ? 'bg-back-selected' : 'bg-lay-selected'}`}>
-                    {selection.type}
+                 <div className={`px-2 py-0.5 rounded-sm text-[10px] font-black uppercase text-white ${selection.type === 'back' || (selection.type === 'session' && selection.isSessionYes) ? 'bg-back-selected' : 'bg-lay-selected'}`}>
+                    {selection.type === 'session' ? (selection.isSessionYes ? 'YES' : 'NO') : selection.type}
                  </div>
               </div>
 
