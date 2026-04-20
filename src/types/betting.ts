@@ -76,7 +76,7 @@ export interface Transaction {
   type: string;
   amount: number;
   description: string;
-  note: string;
+  note?: string;
   createdAt: string;
   balanceAfter?: number;
 }
@@ -130,3 +130,4 @@ export interface Match {
   };
   markets: Market[];
 }
+
