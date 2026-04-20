@@ -22,7 +22,12 @@ export default function AdminUsers() {
     setAmount('');
   };
 
-  const fetchUsers=async()=>{setLoading(true);try{const r=await fetch('/api/users');const d=await r.json();if(d.success)setDbUsers(d.data);}catch(e){console.error(e);}setLoading(false);}; useEffect(()=>{fetchUsers();},[]); const users=dbUsers; const filteredUsers=users.filter(u =>
+  const { users: storeUsers } = useAuthStore();
+
+  // Direct from local store
+  useEffect(() => { setDbUsers(storeUsers); setLoading(false); }, [storeUsers]);
+
+  const users=dbUsers; const filteredUsers=users.filter(u =>
     u.username.toLowerCase().includes(query.toLowerCase())
   );
 
