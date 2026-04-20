@@ -14,9 +14,23 @@ export default function LoginPage() {
   const login = useAuthStore(state => state.login);
   const router = useRouter();
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    const res = login(username, password);
+    // First local store check
+    let res = login(username, password);
+
+    // Also hit API for session cookie
+    try {
+      const apiRes = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password }),
+        credentials: 'include'
+      });
+      const apiData = await apiRes.json();
+      if (apiData.success) res = { success: true };
+    } catch {}
+
     if (res.success) {
       toast.success('Login Successful!');
       router.push('/home');
@@ -25,8 +39,18 @@ export default function LoginPage() {
     }
   };
 
-  const handleDemo = () => {
-    const res = login('demo', 'Demo@123');
+  const handleDemo = async () => {
+    let res = login('demo', 'Demo@123');
+    try {
+      const apiRes = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: 'demo', password: 'Demo@123' }),
+        credentials: 'include'
+      });
+      const apiData = await apiRes.json();
+      if (apiData.success) res = { success: true };
+    } catch {}
     if (res.success) {
       toast.success('Demo Login Successful!');
       router.push('/home');
