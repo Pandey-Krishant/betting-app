@@ -210,7 +210,7 @@ export default function AdminUsers() {
                   className="w-full bg-gray-50 border border-gray-200 px-3 py-2 text-[13px] font-bold rounded-sm focus:outline-none focus:border-match-name"
                 >
                   <option value="">Select user</option>
-                  {users.filter(u => u.role === 'user').map(u => (
+                  {dbUsers.filter(u => u.role === 'user').map(u => (
                     <option key={u.username} value={u.username}>{u.username}</option>
                   ))}
                 </select>
