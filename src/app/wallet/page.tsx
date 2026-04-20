@@ -91,7 +91,7 @@ export default function Wallet() {
                      </td>
                      <td className="px-4 py-3 text-right">
                        <div className="flex items-center justify-end gap-1 font-bold">
-                         {tx.amount === 'unlimited' ? (
+                         {tx.amount === 999999999 ? (
                            <span className="text-gold flex items-center"><InfinityIcon className="w-4 h-4 mr-1"/> Grant</span>
                          ) : tx.type === 'bet_place' || tx.type === 'withdrawal' ? (
                            <span className="text-lay flex items-center">-₹{tx.amount}</span>
@@ -101,7 +101,7 @@ export default function Wallet() {
                        </div>
                      </td>
                      <td className="px-4 py-3 text-right font-medium">
-                        {tx.balanceAfter === 'unlimited' ? <span className="text-gold font-bold">∞</span> : `₹${tx.balanceAfter}`}
+                        {tx.balanceAfter === 999999999 ? <span className="text-gold font-bold">∞</span> : `₹${tx.balanceAfter}`}
                      </td>
                    </tr>
                  ))}
@@ -113,3 +113,4 @@ export default function Wallet() {
     </div>
   );
 }
+
