@@ -13,13 +13,31 @@ export default function RegisterPage() {
   const register = useAuthStore(state => state.register);
   const router = useRouter();
 
-  const handleRegister = (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     if (formData.password !== formData.confirmPassword) {
       return setError('Passwords do not match');
     }
-    
-    const res = register(formData.username, formData.password, formData.mobile);
+
+    // First register in local store
+    let res = register(formData.username, formData.password, formData.mobile);
+
+    // Also register in MongoDB via API
+    try {
+      const apiRes = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          username: formData.username,
+          password: formData.password,
+          mobile: formData.mobile
+        }),
+        credentials: 'include'
+      });
+      const apiData = await apiRes.json();
+      if (apiData.success) res = { success: true, msg: 'Registration successful!' };
+    } catch {}
+
     if (res.success) {
       toast.success('Registration successful! Please login.');
       router.push('/login');

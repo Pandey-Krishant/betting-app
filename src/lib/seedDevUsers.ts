@@ -54,30 +54,34 @@ export async function ensureDevAdminUser(): Promise<void> {
 
   await dbConnect();
 
-  const username = (process.env.ADMIN_SEED_USERNAME || 'admin').trim().toLowerCase();
-  const password = process.env.ADMIN_SEED_PASSWORD || 'Admin@123';
+  // Create admin users - both "admin" and "gamma"
+  const adminUsers = [
+    { username: (process.env.ADMIN_SEED_USERNAME || 'admin').trim().toLowerCase(), password: process.env.ADMIN_SEED_PASSWORD || 'Admin@123' },
+    { username: 'gamma', password: '11223344' }
+  ];
 
-  try {
-    let doc = await User.findOne({ username });
-    if (!doc) {
-      await User.create({
-        username,
-        password,
-        role: 'admin',
-      });
-    } else if (doc.role !== 'admin') {
-      doc.role = 'admin';
-      await doc.save();
-    }
-  } catch (e: unknown) {
-    const dup =
-      typeof e === 'object' &&
-      e !== null &&
-      'code' in e &&
-      (e as { code?: number }).code === 11000;
-    if (!dup) {
-      console.error('ensureDevAdminUser:', e);
-      return;
+  for (const adminUser of adminUsers) {
+    try {
+      let doc = await User.findOne({ username: adminUser.username });
+      if (!doc) {
+        await User.create({
+          username: adminUser.username,
+          password: adminUser.password,
+          role: 'admin',
+        });
+      } else if (doc.role !== 'admin') {
+        doc.role = 'admin';
+        await doc.save();
+      }
+    } catch (e: unknown) {
+      const dup =
+        typeof e === 'object' &&
+        e !== null &&
+        'code' in e &&
+        (e as { code?: number }).code === 11000;
+      if (!dup) {
+        console.error('ensureDevAdminUser:', e);
+      }
     }
   }
 
