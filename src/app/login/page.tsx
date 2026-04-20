@@ -11,15 +11,14 @@ export default function LoginPage() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const login = useAuthStore(state => state.login);
+  const { login, setUser } = useAuthStore();
   const router = useRouter();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    // First local store check
-    let res = login(username, password);
 
-    // Also hit API for session cookie
+    // Hit API for DB balance
+    let apiSuccess = false;
     try {
       const apiRes = await fetch('/api/auth/login', {
         method: 'POST',
@@ -28,19 +27,37 @@ export default function LoginPage() {
         credentials: 'include'
       });
       const apiData = await apiRes.json();
-      if (apiData.success) res = { success: true };
+      if (apiData.success) {
+        apiSuccess = true;
+        // Set user with DB balance
+        setUser({
+          username: apiData.data.username,
+          role: apiData.data.role,
+          balance: apiData.data.balance || 0,
+          exposure: apiData.data.exposure || 0,
+          isUnlimited: apiData.data.isUnlimited || false,
+          status: 'active'
+        });
+      }
     } catch {}
 
-    if (res.success) {
+    if (apiSuccess) {
       toast.success('Login Successful!');
       router.push('/home');
     } else {
-      setError(res.msg || 'Invalid username or password');
+      // Fallback
+      let res = login(username, password);
+      if (res.success) {
+        toast.success('Login Successful!');
+        router.push('/home');
+      } else {
+        setError(res.msg || 'Invalid username or password');
+      }
     }
   };
 
   const handleDemo = async () => {
-    let res = login('demo', 'Demo@123');
+    let apiSuccess = false;
     try {
       const apiRes = await fetch('/api/auth/login', {
         method: 'POST',
@@ -49,12 +66,28 @@ export default function LoginPage() {
         credentials: 'include'
       });
       const apiData = await apiRes.json();
-      if (apiData.success) res = { success: true };
+      if (apiData.success) {
+        apiSuccess = true;
+        setUser({
+          username: apiData.data.username,
+          role: apiData.data.role,
+          balance: apiData.data.balance || 0,
+          exposure: apiData.data.exposure || 0,
+          isUnlimited: apiData.data.isUnlimited || false,
+          status: 'active'
+        });
+      }
     } catch {}
-    if (res.success) {
-      toast.success('Demo Login Successful!');
-      router.push('/home');
+
+    if (!apiSuccess) {
+      let res = login('demo', 'Demo@123');
+      if (!res.success) {
+        toast.error('Demo login failed');
+        return;
+      }
     }
+    toast.success('Demo Login Successful!');
+    router.push('/home');
   };
 
   return (

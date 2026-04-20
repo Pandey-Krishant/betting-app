@@ -16,16 +16,18 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const login = useAuthStore(state => state.login);
+  const { login, setUser } = useAuthStore();
   const router = useRouter();
 
   if (!isOpen) return null;
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    let res = login(username, password);
+    const { login, setUser } = useAuthStore();
 
-    // Also hit API for session
+    // First try API login (authoritative) - gets DB balance
+    let apiSuccess = false;
+
     try {
       const apiRes = await fetch('/api/auth/login', {
         method: 'POST',
@@ -34,20 +36,43 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
         credentials: 'include'
       });
       const apiData = await apiRes.json();
-      if (apiData.success) res = { success: true };
-    } catch {}
+      if (apiData.success) {
+        apiSuccess = true;
+        // Use DB balance from API
+        setUser({
+          username: apiData.data.username,
+          role: apiData.data.role,
+          balance: apiData.data.balance || 0,
+          exposure: apiData.data.exposure || 0,
+          isUnlimited: apiData.data.isUnlimited || false,
+          status: 'active'
+        });
+      }
+    } catch (e) {
+      console.error('API login error:', e);
+    }
 
-    if (res.success) {
+    if (apiSuccess) {
       toast.success('Login Successful!');
       onClose();
       router.push('/home');
     } else {
-      setError(res.msg || 'Invalid username or password');
+      // Fallback: try zustand login
+      const zustandRes = login(username, password);
+      if (zustandRes.success) {
+        toast.success('Login Successful!');
+        onClose();
+        router.push('/home');
+      } else {
+        setError(zustandRes.msg || 'Invalid username or password');
+      }
     }
   };
 
   const handleDemo = async () => {
-    let res = login('demo', 'Demo@123');
+    const { login, setUser } = useAuthStore();
+    let apiSuccess = false;
+
     try {
       const apiRes = await fetch('/api/auth/login', {
         method: 'POST',
@@ -56,13 +81,31 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
         credentials: 'include'
       });
       const apiData = await apiRes.json();
-      if (apiData.success) res = { success: true };
+      if (apiData.success) {
+        apiSuccess = true;
+        // Use DB balance
+        setUser({
+          username: apiData.data.username,
+          role: apiData.data.role,
+          balance: apiData.data.balance || 0,
+          exposure: apiData.data.exposure || 0,
+          isUnlimited: apiData.data.isUnlimited || false,
+          status: 'active'
+        });
+      }
     } catch {}
-    if (res.success) {
-      toast.success('Demo Login Successful!');
-      onClose();
-      router.push('/home');
+
+    if (!apiSuccess) {
+      const res = login('demo', 'Demo@123');
+      if (!res.success) {
+        toast.error('Demo login failed');
+        return;
+      }
     }
+
+    toast.success('Demo Login Successful!');
+    onClose();
+    router.push('/home');
   };
 
   return (

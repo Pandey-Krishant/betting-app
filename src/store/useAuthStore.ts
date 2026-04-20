@@ -8,6 +8,7 @@ interface AuthState {
   transactions: Transaction[];
   login: (username: string, password: string) => { success: boolean, msg?: string };
   logout: () => void;
+  setUser: (user: User | null) => void;
   updateBalance: (amount: number) => void;
   updateExposure: (amount: number) => void;
   addTransaction: (tx: Transaction) => void;
@@ -80,6 +81,7 @@ export const useAuthStore = create<AuthState>()(
         return { success: true, msg: 'Registration successful' };
       },
       logout: () => set({ user: null }),
+      setUser: (user) => set({ user }),
       changePassword: (newPassword) => {
         set((state) => {
           if (!state.user) return state;

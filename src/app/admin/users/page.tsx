@@ -2,51 +2,78 @@
 
 import { useAuthStore } from '@/store/useAuthStore';
 import { useState, useEffect } from 'react';
-import { Wallet, X, Gift, InfinityIcon, Search } from 'lucide-react';
+import { Wallet, X, InfinityIcon, Search } from 'lucide-react';
 import { toast } from 'sonner';
 
+interface DbUser {
+  username: string;
+  mobile?: string;
+  role: 'user' | 'admin';
+  balance: number;
+  exposure: number;
+  isUnlimited: boolean;
+  status: 'active' | 'banned';
+  createdAt?: string;
+}
+
 export default function AdminUsers() {
-  const [dbUsers,setDbUsers]=useState<any[]>([]); const [loading,setLoading]=useState(true); const {user:_adminUser,updateUserBalance, toggleUserBan, setUnlimitedBalance, giftCoins } = useAuthStore();
+  const { user: _adminUser, users: storeUsers, updateUserBalance, toggleUserBan, setUnlimitedBalance } = useAuthStore();
+  const [dbUsers, setDbUsers] = useState<DbUser[]>([]);
+  const [loading, setLoading] = useState(true);
   const [editingUser, setEditingUser] = useState<string | null>(null);
   const [amount, setAmount] = useState('');
   const [query, setQuery] = useState('');
-  const [giftUser, setGiftUser] = useState<string | null>(null);
-  const [giftAmount, setGiftAmount] = useState('');
-
-  const handleUpdate = (username: string, type: 'set' | 'add' | 'deduct') => {
-    const val = parseFloat(amount);
-    if (isNaN(val)) return toast.error('Invalid amount');
-    updateUserBalance(username, val, type);
-    toast.success('Funds updated successfully');
-    setEditingUser(null);
-    setAmount('');
-  };
 
   const fetchUsers = async () => {
     setLoading(true);
     try {
       const r = await fetch('/api/users', { credentials: 'include' });
       const d = await r.json();
-      if (d.success) setDbUsers(d.data);
+      if (d.success) {
+        // Only give unlimited to admins from database, users get 0 unless admin edits
+        const usersWithDefaults = d.data.map((u: DbUser) => ({
+          ...u,
+          // Users from DB, only admin gets unlimited by default
+          isUnlimited: u.role === 'admin'
+        }));
+        setDbUsers(usersWithDefaults);
+      }
     } catch (e) { console.error(e); }
     setLoading(false);
   };
   useEffect(() => { fetchUsers(); }, []);
 
-  const filteredUsers=dbUsers.filter(u =>
+  // Sync balance from DB to store when gift/update happens
+  const handleUpdate = async (username: string, type: 'set' | 'add' | 'deduct') => {
+    const val = parseFloat(amount);
+    if (isNaN(val)) return toast.error('Invalid amount');
+
+    // Update in store first
+    updateUserBalance(username, val, type);
+
+    // Also save to database
+    try {
+      const res = await fetch('/api/users', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: username.toLowerCase(), amount: val, type }),
+        credentials: 'include'
+      });
+      const data = await res.json();
+      if (!data.success) {
+        console.error('DB error:', data.msg);
+      }
+    } catch (e) { console.error('DB sync error:', e); }
+
+    toast.success('Funds updated successfully');
+    setEditingUser(null);
+    setAmount('');
+    fetchUsers(); // Refresh from DB
+  };
+
+  const filteredUsers = dbUsers.filter(u =>
     u.username.toLowerCase().includes(query.toLowerCase())
   );
-
-  const handleGift = () => {
-    if (!giftUser) return toast.error('Select user');
-    const val = parseFloat(giftAmount);
-    if (isNaN(val) || val <= 0) return toast.error('Invalid amount');
-    const res = giftCoins(giftUser, val);
-    if (!res.success) return toast.error(res.msg || 'Gift failed');
-    toast.success('Coins gifted successfully');
-    setGiftUser(null);
-    setGiftAmount('');
-  };
 
   return (
     <div className="space-y-6">
@@ -54,12 +81,6 @@ export default function AdminUsers() {
          <h2 className="font-bold text-lg uppercase tracking-widest text-[#223869] flex items-center gap-2">
             Member Management
          </h2>
-         <button
-           onClick={() => setGiftUser('')}
-           className="h-9 px-4 bg-match-inplay text-white rounded-sm text-[11px] font-black uppercase tracking-widest flex items-center gap-2 hover:opacity-95 active:scale-95 transition-all shadow-sm"
-         >
-           <Gift className="w-4 h-4" /> Gift Coins
-         </button>
       </div>
 
       <div className="bg-white border border-gray-100 rounded-sm p-3 flex items-center gap-3">
@@ -134,12 +155,6 @@ export default function AdminUsers() {
                       Edit
                     </button>
                     <button
-                      onClick={() => setGiftUser(u.username)}
-                      className="h-8 px-3 bg-green-50 text-green-700 border border-green-100 hover:bg-green-100 rounded-sm text-[10px] uppercase font-black transition-all"
-                    >
-                      Gift
-                    </button>
-                    <button 
                       onClick={() => { toggleUserBan(u.username); toast.info(`User ${u.status === 'active' ? 'Suspended' : 'Activated'}`); }}
                       className={`h-8 px-3 ${u.status === 'active' ? 'bg-red-50 text-red-600 border-red-100 hover:bg-red-100' : 'bg-green-50 text-green-600 border-green-100 hover:bg-green-100'} rounded-sm text-[10px] uppercase font-black transition-all`}
                     >
@@ -186,64 +201,6 @@ export default function AdminUsers() {
                  </div>
               </div>
            </div>
-        </div>
-      )}
-
-      {giftUser !== null && (
-        <div className="fixed inset-0 z-[1100] bg-black/70 flex items-center justify-center p-4">
-          <div className="bg-white rounded-sm w-full max-w-[360px] shadow-2xl overflow-hidden animate-in zoom-in duration-200">
-            <div className="exchange-gradient p-4 text-white flex items-center justify-between">
-              <h3 className="font-bold text-[14px] uppercase tracking-widest flex items-center gap-2">
-                <Gift className="w-4 h-4" /> Gift Coins
-              </h3>
-              <button onClick={() => setGiftUser(null)} className="hover:rotate-90 transition-all">
-                <X className="w-5 h-5"/>
-              </button>
-            </div>
-
-            <div className="p-6 space-y-4">
-              <div className="space-y-1">
-                <label className="text-[10px] uppercase font-bold tracking-widest text-gray-400">User</label>
-                <select
-                  value={giftUser}
-                  onChange={(e) => setGiftUser(e.target.value)}
-                  className="w-full bg-gray-50 border border-gray-200 px-3 py-2 text-[13px] font-bold rounded-sm focus:outline-none focus:border-match-name"
-                >
-                  <option value="">Select user</option>
-                  {dbUsers.filter(u => u.role === 'user').map(u => (
-                    <option key={u.username} value={u.username}>{u.username}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-[10px] uppercase font-bold tracking-widest text-gray-400">Amount</label>
-                <input
-                  type="number"
-                  value={giftAmount}
-                  onChange={(e) => setGiftAmount(e.target.value)}
-                  className="w-full bg-blue-50 border-2 border-blue-100 p-4 text-[20px] font-black focus:border-[#fd8f3b] focus:bg-white transition-all focus:outline-none rounded-sm text-center"
-                  placeholder="0.00"
-                  autoFocus
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-2 pt-2">
-                <button
-                  onClick={() => setGiftUser(null)}
-                  className="py-3 rounded-sm bg-gray-100 text-gray-600 font-black uppercase text-[11px] tracking-widest hover:bg-gray-200 transition-all"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleGift}
-                  className="py-3 rounded-sm bg-match-inplay text-white font-black uppercase text-[11px] tracking-widest shadow-lg active:scale-95 transition-all"
-                >
-                  Send Gift
-                </button>
-              </div>
-            </div>
-          </div>
         </div>
       )}
     </div>

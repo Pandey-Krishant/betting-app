@@ -6,7 +6,8 @@
       "Bash(git commit -m \"Fix Vercel build - add missing deps and remove invalid jsx\")",
       "Bash(git push)",
       "Bash(git add src/app/register/page.tsx)",
-      "Bash(git commit -m \"Fix extra closing div in register page\")"
+      "Bash(git commit -m \"Fix extra closing div in register page\")",
+      "Bash(npm run build)"
     ]
   }
 }

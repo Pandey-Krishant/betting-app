@@ -1,3 +1,4 @@
+import bcrypt from 'bcryptjs';
 import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/db';
 import { User } from '@/models/User';
@@ -28,11 +29,13 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    const user = await User.findOne({ username: username.toLowerCase() });
-    if (!user || !(await user.comparePassword(password))) {
+    // Force fresh fetch from DB
+    await dbConnect();
+    const user: any = await User.findOne({ username: username.toLowerCase() }).lean();
+    if (!user || !(await bcrypt.compare(password, user.password))) {
       return NextResponse.json({ success: false, msg: 'Invalid credentials' });
     }
-    
+
     if (user.status === 'banned') {
       return NextResponse.json({ success: false, msg: 'Account suspended' });
     }
@@ -43,15 +46,19 @@ export async function POST(request: NextRequest) {
       role: user.role
     });
 
+    // Explicitly convert balance to number
+    const userBalance = Number(user.balance || 0);
+    const userExposure = Number(user.exposure || 0);
+
     const response = NextResponse.json({
       success: true,
       token,
       data: {
         username: user.username,
         role: user.role,
-        balance: user.balance,
-        exposure: user.exposure,
-        isUnlimited: user.isUnlimited,
+        balance: userBalance,
+        exposure: userExposure,
+        isUnlimited: Boolean(user.isUnlimited),
         mobile: user.mobile,
       },
     });
