@@ -121,11 +121,6 @@ export default function RegisterPage() {
            </div>
         </div>
       </div>
-      <style jsx global>{`
-        .header-gradient {
-          background: var(--header-bg);
-        }
-      `}</style>
     </div>
   );
 }
