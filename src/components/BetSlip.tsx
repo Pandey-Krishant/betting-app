@@ -34,18 +34,18 @@ export default function BetSlip() {
 
   const handlePlaceBet = () => {
     if (!user) {
-      toast.error('Please login to place bet');
+      toast.error('⚠️ Please login to place bet');
       return;
     }
     if (stake <= 0) {
-      toast.error('Please enter stake amount');
+      toast.error('⚠️ Please enter stake amount');
       return;
     }
     if (!user.isUnlimited && user.balance < stake) {
-      toast.error('Insufficient balance');
+      toast.error(`⚠️ Insufficient balance! Current: ₹${user.balance.toLocaleString()}, Required: ₹${stake.toLocaleString()}`);
       return;
     }
-    toast.success('Wait for bet confirmation...');
+    toast.success('⏳ Wait for bet confirmation...');
     // Real API integration would go here
     setTimeout(() => {
        const now = new Date().toISOString();
