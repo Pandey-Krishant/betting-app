@@ -1,0 +1,1 @@
+const fs=require("fs");const p="c:/Users/krish/Desktop/betting/src/app/admin/users/page.tsx";let c=fs.readFileSync(p,"utf8");c=c.replace(/const { users, updateUserBalance/g,"const [dbUsers,setDbUsers]=useState([]);const [loading,setLoading]=useState(true);const {updateUserBalance");fs.writeFileSync(p,c);console.log("done");

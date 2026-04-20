@@ -1,12 +1,12 @@
 'use client';
 
 import { useAuthStore } from '@/store/useAuthStore';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Wallet, X, Gift, InfinityIcon, Search } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function AdminUsers() {
-  const { users, updateUserBalance, toggleUserBan, setUnlimitedBalance, giftCoins } = useAuthStore();
+  const [dbUsers,setDbUsers]=useState<any[]>([]); const [loading,setLoading]=useState(true); const {user:_adminUser,updateUserBalance, toggleUserBan, setUnlimitedBalance, giftCoins } = useAuthStore();
   const [editingUser, setEditingUser] = useState<string | null>(null);
   const [amount, setAmount] = useState('');
   const [query, setQuery] = useState('');
@@ -22,7 +22,7 @@ export default function AdminUsers() {
     setAmount('');
   };
 
-  const filteredUsers = users.filter(u =>
+  const fetchUsers=async()=>{setLoading(true);try{const r=await fetch('/api/users');const d=await r.json();if(d.success)setDbUsers(d.data);}catch(e){console.error(e);}setLoading(false);}; useEffect(()=>{fetchUsers();},[]); const users=dbUsers; const filteredUsers=users.filter(u =>
     u.username.toLowerCase().includes(query.toLowerCase())
   );
 
